@@ -49,27 +49,31 @@ import {
   getCambiarMontoInstruction,
   getCrearClienteInstruction,
   getCrearRegistroInstruction,
+  getEliminarClienteInstruction,
   getHacerDevolucionInstruction,
   getRegistrarVentaInstruction,
   parseCambiarMontoInstruction,
   parseCrearClienteInstruction,
   parseCrearRegistroInstruction,
+  parseEliminarClienteInstruction,
   parseHacerDevolucionInstruction,
   parseRegistrarVentaInstruction,
   type CambiarMontoInput,
   type CrearClienteInput,
   type CrearRegistroInput,
+  type EliminarClienteInput,
   type HacerDevolucionInput,
   type ParsedCambiarMontoInstruction,
   type ParsedCrearClienteInstruction,
   type ParsedCrearRegistroInstruction,
+  type ParsedEliminarClienteInstruction,
   type ParsedHacerDevolucionInstruction,
   type ParsedRegistrarVentaInstruction,
   type RegistrarVentaInput,
 } from "../instructions";
 
 export const REGISTRO_PROGRAM_ADDRESS =
-  "38oTMyvUTmqkBQeMiuok5F2mPjp9dVadWdBeQTDNmTUY" as Address<"38oTMyvUTmqkBQeMiuok5F2mPjp9dVadWdBeQTDNmTUY">;
+  "AJDNp5ZYCdA7XRYZKNa2v5hcdkprKybSFTD6aoD2yRPm" as Address<"AJDNp5ZYCdA7XRYZKNa2v5hcdkprKybSFTD6aoD2yRPm">;
 
 export enum RegistroAccount {
   Registro,
@@ -124,8 +128,9 @@ export enum RegistroInstruction {
   CrearRegistro,
   CrearCliente,
   RegistrarVenta,
-  HacerDevolucion,
   CambiarMonto,
+  HacerDevolucion,
+  EliminarCliente,
 }
 
 export function identifyRegistroInstruction(
@@ -169,6 +174,17 @@ export function identifyRegistroInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([138, 26, 77, 29, 234, 177, 71, 94]),
+      ),
+      0,
+    )
+  ) {
+    return RegistroInstruction.CambiarMonto;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([65, 193, 244, 124, 210, 201, 110, 191]),
       ),
       0,
@@ -180,12 +196,12 @@ export function identifyRegistroInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([138, 26, 77, 29, 234, 177, 71, 94]),
+        new Uint8Array([205, 132, 251, 133, 247, 51, 204, 55]),
       ),
       0,
     )
   ) {
-    return RegistroInstruction.CambiarMonto;
+    return RegistroInstruction.EliminarCliente;
   }
   throw new SolanaError(
     SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_INSTRUCTION,
@@ -194,7 +210,7 @@ export function identifyRegistroInstruction(
 }
 
 export type ParsedRegistroInstruction<
-  TProgram extends string = "38oTMyvUTmqkBQeMiuok5F2mPjp9dVadWdBeQTDNmTUY",
+  TProgram extends string = "AJDNp5ZYCdA7XRYZKNa2v5hcdkprKybSFTD6aoD2yRPm",
 > =
   | ({
       instructionType: RegistroInstruction.CrearRegistro;
@@ -206,11 +222,14 @@ export type ParsedRegistroInstruction<
       instructionType: RegistroInstruction.RegistrarVenta;
     } & ParsedRegistrarVentaInstruction<TProgram>)
   | ({
+      instructionType: RegistroInstruction.CambiarMonto;
+    } & ParsedCambiarMontoInstruction<TProgram>)
+  | ({
       instructionType: RegistroInstruction.HacerDevolucion;
     } & ParsedHacerDevolucionInstruction<TProgram>)
   | ({
-      instructionType: RegistroInstruction.CambiarMonto;
-    } & ParsedCambiarMontoInstruction<TProgram>);
+      instructionType: RegistroInstruction.EliminarCliente;
+    } & ParsedEliminarClienteInstruction<TProgram>);
 
 export function parseRegistroInstruction<TProgram extends string>(
   instruction: Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array>,
@@ -238,6 +257,13 @@ export function parseRegistroInstruction<TProgram extends string>(
         ...parseRegistrarVentaInstruction(instruction),
       };
     }
+    case RegistroInstruction.CambiarMonto: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: RegistroInstruction.CambiarMonto,
+        ...parseCambiarMontoInstruction(instruction),
+      };
+    }
     case RegistroInstruction.HacerDevolucion: {
       assertIsInstructionWithAccounts(instruction);
       return {
@@ -245,11 +271,11 @@ export function parseRegistroInstruction<TProgram extends string>(
         ...parseHacerDevolucionInstruction(instruction),
       };
     }
-    case RegistroInstruction.CambiarMonto: {
+    case RegistroInstruction.EliminarCliente: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: RegistroInstruction.CambiarMonto,
-        ...parseCambiarMontoInstruction(instruction),
+        instructionType: RegistroInstruction.EliminarCliente,
+        ...parseEliminarClienteInstruction(instruction),
       };
     }
     default:
@@ -292,15 +318,20 @@ export type RegistroPluginInstructions = {
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getRegistrarVentaInstruction> &
     SelfPlanAndSendFunctions;
+  cambiarMonto: (
+    input: CambiarMontoInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getCambiarMontoInstruction> & SelfPlanAndSendFunctions;
   hacerDevolucion: (
     input: HacerDevolucionInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getHacerDevolucionInstruction> &
     SelfPlanAndSendFunctions;
-  cambiarMonto: (
-    input: CambiarMontoInput,
+  eliminarCliente: (
+    input: EliminarClienteInput,
     config?: { programAddress?: Address | HasAddress },
-  ) => ReturnType<typeof getCambiarMontoInstruction> & SelfPlanAndSendFunctions;
+  ) => ReturnType<typeof getEliminarClienteInstruction> &
+    SelfPlanAndSendFunctions;
 };
 
 export type RegistroPluginRequirements = ClientWithRpc<
@@ -347,6 +378,14 @@ export function registroProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          cambiarMonto: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getCambiarMontoInstruction(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           hacerDevolucion: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
@@ -355,10 +394,10 @@ export function registroProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
-          cambiarMonto: (input, instructionConfig) =>
+          eliminarCliente: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
-              getCambiarMontoInstruction(input, {
+              getEliminarClienteInstruction(input, {
                 programAddress:
                   instructionConfig?.programAddress ?? config.programAddress,
               }),

@@ -15,19 +15,48 @@ import {
 } from "@solana/kit";
 import { REGISTRO_PROGRAM_ADDRESS } from "../programs";
 
-/** NoOwner: Error, no eres el owner del registro */
+/** NoOwner: La wallet firmante no es la autoridad del registro */
 export const REGISTRO_ERROR__NO_OWNER = 0x1770; // 6000
-/** NoSKU: Error, la venta no esta en el historial del cliente */
+/** NoSKU: La venta no aparece en el historial del cliente */
 export const REGISTRO_ERROR__NO_S_K_U = 0x1771; // 6001
+/** ClienteConVentas: Un cliente con ventas activas no puede eliminarse */
+export const REGISTRO_ERROR__CLIENTE_CON_VENTAS = 0x1772; // 6002
+/** ClienteNoPertenece: La cuenta Cliente no pertenece a este registro */
+export const REGISTRO_ERROR__CLIENTE_NO_PERTENECE = 0x1773; // 6003
+/** MontoNoPositivo: El monto de venta debe ser mayor que cero */
+export const REGISTRO_ERROR__MONTO_NO_POSITIVO = 0x1774; // 6004
+/** CapacidadAlcanzada: Se alcanzo la capacidad del registro */
+export const REGISTRO_ERROR__CAPACIDAD_ALCANZADA = 0x1775; // 6005
+/** TextoMuyLargo: El valor de texto supera la capacidad prevista */
+export const REGISTRO_ERROR__TEXTO_MUY_LARGO = 0x1776; // 6006
+/** SinIds: Se agotaron los identificadores */
+export const REGISTRO_ERROR__SIN_IDS = 0x1777; // 6007
+/** EstadoInvalido: El estado o contador del cliente es inconsistente */
+export const REGISTRO_ERROR__ESTADO_INVALIDO = 0x1778; // 6008
 
 export type RegistroError =
-  typeof REGISTRO_ERROR__NO_OWNER | typeof REGISTRO_ERROR__NO_S_K_U;
+  | typeof REGISTRO_ERROR__CAPACIDAD_ALCANZADA
+  | typeof REGISTRO_ERROR__CLIENTE_CON_VENTAS
+  | typeof REGISTRO_ERROR__CLIENTE_NO_PERTENECE
+  | typeof REGISTRO_ERROR__ESTADO_INVALIDO
+  | typeof REGISTRO_ERROR__MONTO_NO_POSITIVO
+  | typeof REGISTRO_ERROR__NO_OWNER
+  | typeof REGISTRO_ERROR__NO_S_K_U
+  | typeof REGISTRO_ERROR__SIN_IDS
+  | typeof REGISTRO_ERROR__TEXTO_MUY_LARGO;
 
 let registroErrorMessages: Record<RegistroError, string> | undefined;
 if (process.env["NODE_ENV"] !== "production") {
   registroErrorMessages = {
-    [REGISTRO_ERROR__NO_OWNER]: `Error, no eres el owner del registro`,
-    [REGISTRO_ERROR__NO_S_K_U]: `Error, la venta no esta en el historial del cliente`,
+    [REGISTRO_ERROR__CAPACIDAD_ALCANZADA]: `Se alcanzo la capacidad del registro`,
+    [REGISTRO_ERROR__CLIENTE_CON_VENTAS]: `Un cliente con ventas activas no puede eliminarse`,
+    [REGISTRO_ERROR__CLIENTE_NO_PERTENECE]: `La cuenta Cliente no pertenece a este registro`,
+    [REGISTRO_ERROR__ESTADO_INVALIDO]: `El estado o contador del cliente es inconsistente`,
+    [REGISTRO_ERROR__MONTO_NO_POSITIVO]: `El monto de venta debe ser mayor que cero`,
+    [REGISTRO_ERROR__NO_OWNER]: `La wallet firmante no es la autoridad del registro`,
+    [REGISTRO_ERROR__NO_S_K_U]: `La venta no aparece en el historial del cliente`,
+    [REGISTRO_ERROR__SIN_IDS]: `Se agotaron los identificadores`,
+    [REGISTRO_ERROR__TEXTO_MUY_LARGO]: `El valor de texto supera la capacidad prevista`,
   };
 }
 

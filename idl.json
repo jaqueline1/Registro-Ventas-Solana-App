@@ -1,9 +1,6 @@
 {
   "version": "0.1.0",
   "name": "registro",
-  "metadata": {
-    "address": "38oTMyvUTmqkBQeMiuok5F2mPjp9dVadWdBeQTDNmTUY"
-  },
   "instructions": [
     {
       "name": "crearRegistro",
@@ -111,41 +108,6 @@
       ]
     },
     {
-      "name": "hacerDevolucion",
-      "accounts": [
-        {
-          "name": "owner",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "registro",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "cliente",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "venta",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "idCliente",
-          "type": "u16"
-        },
-        {
-          "name": "sku",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "cambiarMonto",
       "accounts": [
         {
@@ -181,6 +143,67 @@
         {
           "name": "nuevoMonto",
           "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "hacerDevolucion",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "registro",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cliente",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "venta",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "idCliente",
+          "type": "u16"
+        },
+        {
+          "name": "sku",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "eliminarCliente",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "registro",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "cliente",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "idCliente",
+          "type": "u16"
         }
       ]
     }
@@ -263,12 +286,50 @@
     {
       "code": 6000,
       "name": "NoOwner",
-      "msg": "Error, no eres el owner del registro"
+      "msg": "La wallet firmante no es la autoridad del registro"
     },
     {
       "code": 6001,
       "name": "NoSKU",
-      "msg": "Error, la venta no esta en el historial del cliente"
+      "msg": "La venta no aparece en el historial del cliente"
+    },
+    {
+      "code": 6002,
+      "name": "ClienteConVentas",
+      "msg": "Un cliente con ventas activas no puede eliminarse"
+    },
+    {
+      "code": 6003,
+      "name": "ClienteNoPertenece",
+      "msg": "La cuenta Cliente no pertenece a este registro"
+    },
+    {
+      "code": 6004,
+      "name": "MontoNoPositivo",
+      "msg": "El monto de venta debe ser mayor que cero"
+    },
+    {
+      "code": 6005,
+      "name": "CapacidadAlcanzada",
+      "msg": "Se alcanzo la capacidad del registro"
+    },
+    {
+      "code": 6006,
+      "name": "TextoMuyLargo",
+      "msg": "El valor de texto supera la capacidad prevista"
+    },
+    {
+      "code": 6007,
+      "name": "SinIds",
+      "msg": "Se agotaron los identificadores"
+    },
+    {
+      "code": 6008,
+      "name": "EstadoInvalido",
+      "msg": "El estado o contador del cliente es inconsistente"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "AJDNp5ZYCdA7XRYZKNa2v5hcdkprKybSFTD6aoD2yRPm"
+  }
 }
